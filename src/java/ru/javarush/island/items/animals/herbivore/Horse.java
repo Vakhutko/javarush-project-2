@@ -10,5 +10,6 @@ public class Horse extends Herbivore {
         setWeight(400);
         setSpeed(4);
         setSaturation(60);
+        setMaxSaturation(60);
     }
 }

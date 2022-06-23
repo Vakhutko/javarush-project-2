@@ -10,5 +10,6 @@ public class Buffalo extends Herbivore {
         setWeight(700);
         setSpeed(3);
         setSaturation(100);
+        setMaxSaturation(100);
     }
 }

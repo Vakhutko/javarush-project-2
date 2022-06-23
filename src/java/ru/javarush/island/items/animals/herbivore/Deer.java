@@ -10,5 +10,6 @@ public class Deer extends Herbivore {
         setWeight(300);
         setSpeed(4);
         setSaturation(50);
+        setMaxSaturation(50);
     }
 }

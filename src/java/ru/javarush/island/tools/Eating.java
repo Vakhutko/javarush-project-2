@@ -1,30 +1,30 @@
 package ru.javarush.island.tools;
 
 import ru.javarush.island.items.abstracts.Animal;
+import ru.javarush.island.items.abstracts.BasicItem;
+import ru.javarush.island.items.abstracts.Plant;
 import ru.javarush.island.items.animals.carnivore.*;
 import ru.javarush.island.items.animals.herbivore.*;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Eating {
-    private final static int WOLF_EATING_INDEX = 0;
-    private final static int BOA_EATING_INDEX = 1;
-    private final static int FOX_EATING_INDEX = 2;
-    private final static int BEAR_EATING_INDEX = 3;
-    private final static int EAGLE_EATING_INDEX = 4;
-    private final static int HORSE_EATING_INDEX = 5;
-    private final static int DEER_EATING_INDEX = 6;
-    private final static int RABBIT_EATING_INDEX = 7;
-    private final static int MOUSE_EATING_INDEX = 8;
-    private final static int GOAT_EATING_INDEX = 9;
-    private final static int SHEEP_EATING_INDEX = 10;
-    private final static int BOAR_EATING_INDEX = 11;
-    private final static int BUFFALO_EATING_INDEX = 12;
-    private final static int DUCK_EATING_INDEX = 13;
-    private final static int CATERPILLAR_EATING_INDEX = 14;
-    private final static int HERB_EATING_INDEX = 15;
+    public final static int WOLF = 0;
+    public final static int BOA = 1;
+    public final static int FOX = 2;
+    public final static int BEAR = 3;
+    public final static int EAGLE = 4;
+    public final static int HORSE = 5;
+    public final static int DEER = 6;
+    public final static int RABBIT = 7;
+    public final static int MOUSE = 8;
+    public final static int GOAT = 9;
+    public final static int SHEEP = 10;
+    public final static int BOAR = 11;
+    public final static int BUFFALO = 12;
+    public final static int DUCK = 13;
+    public final static int CATERPILLAR = 14;
     private final static String KILL_STRING = """
             -\t0\t0\t0\t0\t10\t15\t60\t80\t60\t70\t15\t10\t40\t0\t0
             0\t-\t15\t0\t0\t0\t0\t20\t40\t0\t0\t0\t0\t10\t0\t0
@@ -44,21 +44,64 @@ public class Eating {
 
     private final int[][] killArray = new int[15][16];
     private final Map<Class<? extends Animal>, int[]> killMap = new HashMap<>();
+    private final Statistic statistic;
 
-    public Eating() {
+    public Eating(Statistic statistic) {
+        this.statistic = statistic;
         fillKillArray();
     }
 
-    public static void main(String[] args) {
-        Eating eating = new Eating();
-        eating.fillKillArray();
-//        for (Map.Entry<Class<? extends Animal>, int[]> me : eating.killMap.entrySet()) {
-//            System.out.println(me.getKey() + " " + Arrays.toString(me.getValue()));
-//        }
-//        System.out.println(Arrays.toString(eating.killMap.get(Wolf.class)));
+    public void bestFoodForAnimal(Animal animal, ArrayList<BasicItem> arrayList) {
+        ArrayList<BasicItem> animals = new ArrayList<>();
+        int[] animalsToEat = killMap.get(animal.getClass());
+        for (BasicItem a : arrayList) {
+            if (animalsToEat[checkItemIndex(a)] > 0 && a.getWeight() >= animal.getSaturation()) {
+                animals.add(a);
+            }
+        }
+        if (animals.size() > 0) {
+            tryToEat(animals, animal, animalsToEat);
+        }
     }
 
-    public void fillKillArray() {
+    private void tryToEat(ArrayList<BasicItem> animals, Animal animal, int[] animalsToEat) {
+        for (int i = 0; i < countOfItemToEat(animal.getClass()); i++) {
+            BasicItem basicItem;
+            Optional<BasicItem> optionalInteger = animals.stream().filter(BasicItem::getLife).max(Comparator.comparingInt(o -> animalsToEat[checkItemIndex(o)]));
+            if (optionalInteger.isPresent()) {
+                basicItem = optionalInteger.get();
+                ThreadLocalRandom threadLocalRandom = ThreadLocalRandom.current();
+                if (threadLocalRandom.nextInt(100) <= animalsToEat[checkItemIndex(basicItem)]) {
+                    animal.setSaturation(Math.min((animal.getSaturation() + basicItem.getWeight()), animal.getMaxSaturation()));
+                    animal.eat(basicItem);
+                    if (basicItem instanceof Animal) {
+                        statistic.increaseAnimalCount(-1);
+                    } else if (basicItem instanceof Plant) {
+                        statistic.increaseDeathGrass(1);
+                    }
+                }
+            }
+        }
+    }
+
+    private int countOfItemToEat(Class<? extends Animal> animalClass) {
+        switch (animalClass.getSimpleName().toUpperCase()) {
+            case "BOAR", "DEER", "HORSE" -> {
+                return 5;
+            }
+            case "BUFFALO" -> {
+                return 10;
+            }
+            case "SHEEP", "GOAT" -> {
+                return 3;
+            }
+            default -> {
+                return 1;
+            }
+        }
+    }
+
+    private void fillKillArray() {
         String[] line = KILL_STRING.split("\n");
         for (int i = 0; i < killArray.length; i++) {
             String[] row = line[i].split("\t");
@@ -73,21 +116,41 @@ public class Eating {
         fillKillMap();
     }
 
-    public void fillKillMap() {
-        killMap.put(Wolf.class, killArray[0]);
-        killMap.put(Boa.class, killArray[1]);
-        killMap.put(Fox.class, killArray[2]);
-        killMap.put(Bear.class, killArray[3]);
-        killMap.put(Eagle.class, killArray[4]);
-        killMap.put(Horse.class, killArray[5]);
-        killMap.put(Deer.class, killArray[6]);
-        killMap.put(Rabbit.class, killArray[7]);
-        killMap.put(Mouse.class, killArray[8]);
-        killMap.put(Goat.class, killArray[9]);
-        killMap.put(Sheep.class, killArray[10]);
-        killMap.put(Boar.class, killArray[11]);
-        killMap.put(Buffalo.class, killArray[12]);
-        killMap.put(Duck.class, killArray[13]);
-        killMap.put(Caterpillar.class, killArray[14]);
+    private int checkItemIndex(BasicItem basicItem) {
+        if (basicItem.getClass().getSimpleName().equalsIgnoreCase("WOLF")) return 0;
+        else if (basicItem.getClass().getSimpleName().equalsIgnoreCase("BOA")) return 1;
+        else if (basicItem.getClass().getSimpleName().equalsIgnoreCase("FOX")) return 2;
+        else if (basicItem.getClass().getSimpleName().equalsIgnoreCase("BEAR")) return 3;
+        else if (basicItem.getClass().getSimpleName().equalsIgnoreCase("EAGLE")) return 4;
+        else if (basicItem.getClass().getSimpleName().equalsIgnoreCase("HORSE")) return 5;
+        else if (basicItem.getClass().getSimpleName().equalsIgnoreCase("DEER")) return 6;
+        else if (basicItem.getClass().getSimpleName().equalsIgnoreCase("RABBIT")) return 7;
+        else if (basicItem.getClass().getSimpleName().equalsIgnoreCase("MOUSE")) return 8;
+        else if (basicItem.getClass().getSimpleName().equalsIgnoreCase("GOAT")) return 9;
+        else if (basicItem.getClass().getSimpleName().equalsIgnoreCase("SHEEP")) return 10;
+        else if (basicItem.getClass().getSimpleName().equalsIgnoreCase("BOAR")) return 11;
+        else if (basicItem.getClass().getSimpleName().equalsIgnoreCase("BUFFALO")) return 12;
+        else if (basicItem.getClass().getSimpleName().equalsIgnoreCase("DUCK")) return 13;
+        else if (basicItem.getClass().getSimpleName().equalsIgnoreCase("CATERPILLAR")) return 14;
+        else if (basicItem.getClass().getSimpleName().equalsIgnoreCase("HERB")) return 15;
+        return -1;
+    }
+
+    private void fillKillMap() {
+        killMap.put(Wolf.class, killArray[WOLF]);
+        killMap.put(Boa.class, killArray[BOA]);
+        killMap.put(Fox.class, killArray[FOX]);
+        killMap.put(Bear.class, killArray[BEAR]);
+        killMap.put(Eagle.class, killArray[EAGLE]);
+        killMap.put(Horse.class, killArray[HORSE]);
+        killMap.put(Deer.class, killArray[DEER]);
+        killMap.put(Rabbit.class, killArray[RABBIT]);
+        killMap.put(Mouse.class, killArray[MOUSE]);
+        killMap.put(Goat.class, killArray[GOAT]);
+        killMap.put(Sheep.class, killArray[SHEEP]);
+        killMap.put(Boar.class, killArray[BOAR]);
+        killMap.put(Buffalo.class, killArray[BUFFALO]);
+        killMap.put(Duck.class, killArray[DUCK]);
+        killMap.put(Caterpillar.class, killArray[CATERPILLAR]);
     }
 }

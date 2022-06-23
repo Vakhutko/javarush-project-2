@@ -10,5 +10,6 @@ public class Boar extends Herbivore {
         setWeight(400);
         setSpeed(2);
         setSaturation(50);
+        setMaxSaturation(50);
     }
 }

@@ -10,5 +10,6 @@ public class Fox extends Carnivore {
         setWeight(8);
         setSpeed(2);
         setSaturation(2);
+        setMaxSaturation(2);
     }
 }

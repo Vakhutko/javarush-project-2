@@ -4,10 +4,12 @@ public abstract class BasicItem {
     private int x;
     private int y;
     private double weight;
+    private boolean life;
 
     public BasicItem(int x, int y) {
         this.x = x;
         this.y = y;
+        this.life = true;
     }
 
     public int getX() {
@@ -34,5 +36,11 @@ public abstract class BasicItem {
         this.weight = weight;
     }
 
-    public void dead() {}
+    public boolean getLife() {
+        return life;
+    }
+
+    public void dead() {
+        this.life = false;
+    }
 }

@@ -10,5 +10,6 @@ public class Rabbit extends Herbivore {
         setWeight(2);
         setSpeed(2);
         setSaturation(0.45);
+        setMaxSaturation(0.45);
     }
 }

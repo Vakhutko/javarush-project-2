@@ -10,5 +10,6 @@ public class Wolf extends Carnivore {
         setWeight(50);
         setSpeed(3);
         setSaturation(8);
+        setMaxSaturation(8);
     }
 }

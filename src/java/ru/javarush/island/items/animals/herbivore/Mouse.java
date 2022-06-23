@@ -10,5 +10,6 @@ public class Mouse extends Herbivore {
         setWeight(0.05);
         setSpeed(1);
         setSaturation(0.01);
+        setMaxSaturation(0.01);
     }
 }

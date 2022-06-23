@@ -10,5 +10,6 @@ public class Eagle extends Carnivore {
         setWeight(6);
         setSpeed(3);
         setSaturation(1);
+        setMaxSaturation(1);
     }
 }

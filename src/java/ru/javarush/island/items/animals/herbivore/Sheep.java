@@ -10,5 +10,6 @@ public class Sheep extends Herbivore {
         setWeight(70);
         setSpeed(3);
         setSaturation(15);
+        setMaxSaturation(15);
     }
 }

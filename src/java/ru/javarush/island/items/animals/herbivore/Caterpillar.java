@@ -10,5 +10,6 @@ public class Caterpillar extends Herbivore {
         setWeight(0.01);
         setSpeed(0);
         setSaturation(0);
+        setMaxSaturation(0);
     }
 }

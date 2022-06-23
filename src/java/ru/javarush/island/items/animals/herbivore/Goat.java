@@ -10,5 +10,6 @@ public class Goat extends Herbivore {
         setWeight(60);
         setSpeed(3);
         setSaturation(10);
+        setMaxSaturation(10);
     }
 }

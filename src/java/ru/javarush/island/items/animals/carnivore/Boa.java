@@ -10,5 +10,6 @@ public class Boa extends Carnivore {
         setWeight(15);
         setSpeed(1);
         setSaturation(3);
+        setMaxSaturation(3);
     }
 }
